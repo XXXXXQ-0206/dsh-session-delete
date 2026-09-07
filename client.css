@@ -122,10 +122,10 @@
     --dstrb-tooltip-text: #1a202c;
     --dstrb-tooltip-muted: #4a5568;
 
-    --dstrb-toast-bg: #2d3748;
-    --dstrb-toast-text: #ffffff;
-    --dstrb-toast-btn-bg: #4a5568;
-    --dstrb-toast-btn-text: var(--dsw-alias-brand-primary, #63b3ed);
+    --dstrb-toast-bg: #e2e8f0;
+    --dstrb-toast-text: #1a202c;
+    --dstrb-toast-btn-bg: #cbd5e0;
+    --dstrb-toast-btn-text: #1a202c;
 
     --dstrb-code-inline-bg: rgba(255, 255, 255, 0.12);
     --dstrb-code-inline-text: #fc8181;
@@ -181,10 +181,10 @@ body[data-ds-dark-theme] {
   --dstrb-tooltip-text: #1a202c;
   --dstrb-tooltip-muted: #4a5568;
 
-  --dstrb-toast-bg: #2d3748;
-  --dstrb-toast-text: #ffffff;
-  --dstrb-toast-btn-bg: #4a5568;
-  --dstrb-toast-btn-text: var(--dsw-alias-brand-primary, #63b3ed);
+  --dstrb-toast-bg: #e2e8f0;
+  --dstrb-toast-text: #1a202c;
+  --dstrb-toast-btn-bg: #cbd5e0;
+  --dstrb-toast-btn-text: #1a202c;
 
   --dstrb-code-inline-bg: rgba(255, 255, 255, 0.12);
   --dstrb-code-inline-text: #fc8181;
