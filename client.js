@@ -1010,6 +1010,12 @@ window.__ModuleLoader__.load({
     const SESSION_ARIA_ZH = /^会话“(.+?)”的操作$/;
     const SESSION_ARIA_EN = /^Session actions for (.+)$/;
 
+    /** A native session-action button's aria-label (会话“…”的操作 / Session actions for …). */
+    function isSessionActionLabel(label) {
+      const l = label ?? '';
+      return SESSION_ARIA_ZH.test(l) || SESSION_ARIA_EN.test(l);
+    }
+
     function sessionTitleFromLabel(label) {
       const zh = SESSION_ARIA_ZH.exec(label ?? '');
       if (zh) return zh[1];
@@ -1071,7 +1077,7 @@ window.__ModuleLoader__.load({
     function insertButtonIntoRow(row, el, title) {
       const actionBtns = [...row.querySelectorAll('button')].filter((b) => {
         const l = b.getAttribute('aria-label') ?? '';
-        return SESSION_ARIA_ZH.test(l) || SESSION_ARIA_EN.test(l);
+        return isSessionActionLabel(l);
       });
       if (actionBtns.length > 0) {
         const last = actionBtns[actionBtns.length - 1];
@@ -1127,7 +1133,7 @@ window.__ModuleLoader__.load({
 
         const actionBtn = [...row.querySelectorAll('button')].find((b) => {
           const l = b.getAttribute('aria-label') ?? '';
-          return SESSION_ARIA_ZH.test(l) || SESSION_ARIA_EN.test(l);
+          return isSessionActionLabel(l);
         });
 
         if (actionBtn) {
@@ -1155,7 +1161,7 @@ window.__ModuleLoader__.load({
                 const sameTitled = siblingSessionRows(row).filter((r) => {
                   const b = [...r.querySelectorAll('button')].find((btn) => {
                     const l = btn.getAttribute('aria-label') ?? '';
-                    return SESSION_ARIA_ZH.test(l) || SESSION_ARIA_EN.test(l);
+                    return isSessionActionLabel(l);
                   });
                   return b && sessionTitleFromLabel(b.getAttribute('aria-label')) === title;
                 });
