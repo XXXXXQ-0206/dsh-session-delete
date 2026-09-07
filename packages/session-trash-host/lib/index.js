@@ -607,6 +607,13 @@ function guard(handler) {
   };
 }
 
+/** Reject a route when the HTTP method does not match the allowed method. */
+function requireMethod(req, res, allowed) {
+  if (req.method === allowed) return true;
+  sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: `${allowed} only` } });
+  return false;
+}
+
 /**
  * Register the /api/session-trash/* routes on the webServer service.
  * @param {import('@deepseek-ai/cordis').Context} ctx
@@ -675,7 +682,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/list`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'GET') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'GET only' } });
+        if (!requireMethod(req, res, 'GET')) return;
         const items = (await registry?.listArchivedSessions?.()) ?? [];
         ok(res, { items });
       }),
@@ -685,7 +692,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/sessions`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'GET') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'GET only' } });
+        if (!requireMethod(req, res, 'GET')) return;
         ok(res, { items: await allSessions() });
       }),
     },
@@ -694,7 +701,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/archive`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'POST only' } });
+        if (!requireMethod(req, res, 'POST')) return;
         const { sessionId, title } = await readBody(req);
         if (!sessionId) throw httpError(400, 'BAD_REQUEST', 'sessionId is required');
         const agents = ctx.get('agents');
@@ -711,7 +718,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/unarchive`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'POST only' } });
+        if (!requireMethod(req, res, 'POST')) return;
         const { sessionId } = await readBody(req);
         if (!sessionId) throw httpError(400, 'BAD_REQUEST', 'sessionId is required');
         await registry?.unarchiveSession?.(sessionId);
@@ -723,7 +730,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/purge`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'POST only' } });
+        if (!requireMethod(req, res, 'POST')) return;
         const { sessionIds } = await readBody(req);
         const ids = Array.isArray(sessionIds) ? sessionIds.filter((id) => typeof id === 'string' && id) : [];
         if (ids.length === 0) throw httpError(400, 'BAD_REQUEST', 'sessionIds[] is required');
@@ -746,7 +753,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/messages`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'GET') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'GET only' } });
+        if (!requireMethod(req, res, 'GET')) return;
         if (!req.url) throw httpError(400, 'BAD_REQUEST', 'missing request URL');
         const url = new URL(req.url, 'http://localhost');
         const sessionId = url.searchParams.get('sessionId');
@@ -755,18 +762,21 @@ function registerRoutes(ctx) {
         const logPath = typeof persistence?.findLog === 'function' ? await persistence.findLog(sessionId) : undefined;
         const messages = [];
 
+        /** 提取 ContentBlock[] 中的文本块并连接（text-only blocks）。 */
+        function blockText(content) {
+          if (!Array.isArray(content)) return '';
+          return content
+            .filter((part) => part && part.type === 'text' && typeof part.text === 'string')
+            .map((part) => part.text)
+            .filter(Boolean)
+            .join('\n')
+            .trim();
+        }
+
         /** 提取用户消息中的真实对话内容，过滤掉系统上下文、skills 等注入内容 */
         function extractUserText(raw) {
           if (!raw) return '';
-          // content 是 ContentBlock[]，每个 block 有 type 和 text 字段
-          if (Array.isArray(raw)) {
-            return raw
-              .filter((part) => part && part.type === 'text' && typeof part.text === 'string')
-              .map((part) => part.text)
-              .filter(Boolean)
-              .join('\n')
-              .trim();
-          }
+          if (Array.isArray(raw)) return blockText(raw);
           if (typeof raw !== 'string') return '';
           let str = raw;
           // 优先提取 <USER_REQUEST> 内的内容（用户真实输入）
@@ -786,15 +796,7 @@ function registerRoutes(ctx) {
         /** 提取助手消息中的真实回复内容，过滤掉 reasoning 思考块、tool-call 等 */
         function extractAssistantText(content) {
           if (!content) return '';
-          // content 是 ContentBlock[]，过滤出 type 为 'text' 的块（排除 reasoning/tool-call/tool-result）
-          if (Array.isArray(content)) {
-            return content
-              .filter((part) => part && part.type === 'text' && typeof part.text === 'string')
-              .map((part) => part.text)
-              .filter(Boolean)
-              .join('\n')
-              .trim();
-          }
+          if (Array.isArray(content)) return blockText(content);
           // 内容为字符串：去掉 thinking 块（兼容旧格式）
           if (typeof content === 'string') {
             let str = content;
@@ -977,7 +979,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/purge-workspace`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'POST only' } });
+        if (!requireMethod(req, res, 'POST')) return;
         const { workspacePath, sessionIds } = await readBody(req);
         let targetIds = Array.isArray(sessionIds) ? sessionIds : [];
 
@@ -1010,7 +1012,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/empty`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'POST only' } });
+        if (!requireMethod(req, res, 'POST')) return;
         const result = (await registry?.emptyArchivedSessions?.()) ?? { deletedCount: 0, total: 0 };
         broadcastArchived();
         ok(res, result);
@@ -1024,7 +1026,7 @@ function registerRoutes(ctx) {
       kind: 'exact',
       path: `${ROUTE_PREFIX}/client.css`,
       handler: guard(async (req, res) => {
-        if (req.method !== 'GET') return sendJson(res, 405, { ok: false, error: { code: 'METHOD', message: 'GET only' } });
+        if (!requireMethod(req, res, 'GET')) return;
         let css;
         try {
           css = await readFile(CLIENT_CSS_PATH, 'utf8');
