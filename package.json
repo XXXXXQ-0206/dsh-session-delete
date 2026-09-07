@@ -1,0 +1,56 @@
+{
+  "name": "dsh-session-delete",
+  "version": "0.5.0",
+  "description": "DSH 会话回收站：侧边栏删除图标、回收站多选还原/彻底删除、活跃会话保护。 · Session trash & permanent delete for DeepSeek Harness.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "client.css",
+    "cordis.patch.yml",
+    "packages/session-trash-host/lib",
+    "packages/session-trash-host/package.json"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "session",
+    "trash",
+    "recycle-bin",
+    "session-management"
+  ],
+  "repository": "https://github.com/XXXXXQ-0206/dsh-session-delete",
+  "homepage": "https://github.com/XXXXXQ-0206/dsh-session-delete#readme",
+  "bugs": {
+    "url": "https://github.com/XXXXXQ-0206/dsh-session-delete/issues"
+  },
+  "dsh": {
+    "displayName": "DSH 会话回收站（XXXXXQ fork）",
+    "description": "DSH 会话回收站（XXXXXQ fork）：侧边栏删除图标、回收站多选还原/彻底删除、活跃会话保护。",
+    "homepage": "https://github.com/XXXXXQ-0206/dsh-session-delete",
+    "repository": "https://github.com/XXXXXQ-0206/dsh-session-delete",
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "prepublishOnly": "npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
