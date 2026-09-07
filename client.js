@@ -16,6 +16,18 @@ window.__ModuleLoader__.load({
     const API_PREFIX = '/api/session-trash';
     let pendingMenuSession = null;
 
+    /** Resolve one session title with the browser store, falling back to server data. */
+    function currentTitle(ctx, sessionId, fallback) {
+      try {
+        const byId = ctx?.sessions?.list?.getSnapshot()?.byId ?? {};
+        const title = byId[sessionId]?.title;
+        if (title && title !== sessionId) return title;
+        return fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
     /** Safe icon helper functions (zero-fail direct element creation) */
     function renderTrashIcon(props = {}) {
       const { style, ...rest } = props;
@@ -150,7 +162,7 @@ window.__ModuleLoader__.load({
       link.id = 'dsh-session-recycle-bin-stylesheet';
       link.rel = 'stylesheet';
       // 带版本号做 cache-bust：样式更新后浏览器强制拉取最新，避免命中旧缓存仍显示旧配色。
-      link.href = '/api/session-trash/client.css?v=0.4.4';
+      link.href = '/api/session-trash/client.css?v=0.5.1';
       (document.head ?? document.documentElement).appendChild(link);
     }
 
@@ -502,20 +514,6 @@ window.__ModuleLoader__.load({
         return () => document.removeEventListener('pointerdown', handleClickOutside, true);
       }, []);
 
-      const currentTitle = (sessionId, fallback) => {
-        try {
-          const byId = ctx?.sessions?.list?.getSnapshot()?.byId ?? {};
-          const title = byId[sessionId]?.title;
-          // 如果浏览器 store 中的标题就是 sessionId 本身，说明该会话已被归档、
-          // 浏览器 store 中只剩占位符，此时应优先使用服务端返回的 fallback 标题
-          // （服务端从 archivedTitles 或日志解析中获取了正确的名称）。
-          if (title && title !== sessionId) return title;
-          return fallback;
-        } catch {
-          return fallback;
-        }
-      };
-
       const loadItems = useCallback(async () => {
         setError(null);
         try {
@@ -553,7 +551,7 @@ window.__ModuleLoader__.load({
           // （fetch/load/reload 并不存在，正确方法是 refresh()）
           refreshSessionViews(ctx);
 
-          showToastLayer(`已恢复会话「${currentTitle(session.sessionId, session.title) || session.title || session.sessionId}」`, async () => {
+          showToastLayer(`已恢复会话「${currentTitle(ctx, session.sessionId, session.title) || session.title || session.sessionId}」`, async () => {
             try {
               await api(ctx, `${API_PREFIX}/archive`, { method: 'POST', body: { sessionId: session.sessionId } });
               loadItems();
@@ -637,7 +635,7 @@ window.__ModuleLoader__.load({
 
       /** 打开预览 Modal */
       const handleOpenPreview = async (session) => {
-        const title = currentTitle(session.sessionId, session.title) || session.sessionId;
+        const title = currentTitle(ctx, session.sessionId, session.title) || session.sessionId;
         setPreviewSession({ ...session, title });
         setPreviewLoading(true);
         setPreviewMessages([]);
@@ -669,7 +667,7 @@ window.__ModuleLoader__.load({
         if (searchQuery.trim()) {
           const q = searchQuery.trim().toLowerCase();
           list = list.filter((i) => {
-            const title = (currentTitle(i.sessionId, i.title) || i.sessionId).toLowerCase();
+            const title = (currentTitle(ctx, i.sessionId, i.title) || i.sessionId).toLowerCase();
             return title.includes(q);
           });
         }
@@ -817,7 +815,7 @@ window.__ModuleLoader__.load({
                   // Session Cards List
                   h('div', { className: 'dsh-trash-cards' },
                     group.items.map((item) => {
-                      const displayTitle = currentTitle(item.sessionId, item.title) || item.sessionId;
+                      const displayTitle = currentTitle(ctx, item.sessionId, item.title) || item.sessionId;
                       const path = item.cwd || item.workspacePath || '-';
                       const isChecked = selectedSessionIds.has(item.sessionId);
 
@@ -979,7 +977,7 @@ window.__ModuleLoader__.load({
           showToastLayer('无法识别当前活动会话 ID');
           return;
         }
-        const title = (session?.title || currentTitle(sessionId, '')) ?? '';
+        const title = (session?.title || currentTitle(ctx, sessionId, '')) ?? '';
         try {
           await api(ctx, `${API_PREFIX}/archive`, { method: 'POST', body: { sessionId, title } });
           purgeFromBrowserSessionStore(ctx, [sessionId]);
@@ -1212,7 +1210,7 @@ window.__ModuleLoader__.load({
         row.classList.add('dsh-trash-row');
 
         if (!title && sessionId) {
-          title = currentTitle(sessionId, '');
+          title = currentTitle(ctx, sessionId, '');
         }
 
         // 把「删除」作为菜单项注入到该会话的下拉菜单（与“重命名 / 分叉对话 / 归档对话”并列）。
