@@ -162,7 +162,7 @@ window.__ModuleLoader__.load({
       link.id = 'dsh-session-recycle-bin-stylesheet';
       link.rel = 'stylesheet';
       // 带版本号做 cache-bust：样式更新后浏览器强制拉取最新，避免命中旧缓存仍显示旧配色。
-      link.href = '/api/session-trash/client.css?v=0.5.1';
+      link.href = '/api/session-trash/client.css?v=0.5.2';
       (document.head ?? document.documentElement).appendChild(link);
     }
 
