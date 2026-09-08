@@ -1,92 +1,103 @@
 # dsh-session-delete
 
-**Session recycle bin & permanent delete for DeepSeek Harness.**
+**Session recycle bin and permanent delete for DeepSeek Harness.**
 
-Move sessions into a recycle bin from the sidebar, restore or permanently delete them (single or batch), with live-session protection.
+`dsh-session-delete` adds a safe, recoverable deletion workflow to DeepSeek Harness. Move a session into the recycle bin from its sidebar action menu, manage archived sessions in Settings, restore them with one click, or permanently remove them in batches. Active agents and live sessions are protected by default.
 
-[English](README.md) | [中文](README.zh.md)
+## Highlights
 
----
+- **Sidebar action**  
+  The **Delete** item joins the native session action menu next to Rename, Fork, and Archive.
 
-## ✨ Features
+- **Header action**  
+  The active session can be moved into the recycle bin from the conversation header.
 
-- **Sidebar per-session delete icon** — hover a session row, a small trash icon appears; click to move it into the recycle bin instantly (no confirmation; always recoverable).
-- **Session-header delete button** — delete the current session from the conversation header.
-- **Recycle-bin manager** (Settings → 🗑 会话回收站) — archived sessions with multi-select: batch restore, batch permanent delete; each item shows its ID and path.
-- **True permanent delete** — physically removes the session log from disk and the projection-cache record; ghost sessions (records without a log) are cleaned up so they vanish instead of lingering.
-- **Live-session protection** — sessions with an active agent are refused deletion.
-- **Batch fault tolerance** — batch operations delete per-session with error collection and reporting.
-- **Light/dark adaptive UI** — all colors are CSS custom properties in `client.css`; components follow the resolved DSH appearance (`data-ds-dark-theme`) with `prefers-color-scheme` as the OS-level fallback (no hardcoded palette).
+- **Recycle bin manager**  
+  Settings → **会话回收站** provides search, workspace grouping, multi-select, batch restore, and batch permanent delete.
 
----
+- **Permanent delete**  
+  Removes both the durable session log and projection-cache records, including ghost sessions without a log.
 
-## 📦 Install
+- **Active-session protection**  
+  Refuses to delete sessions that are running or otherwise in use.
 
-### One-click from the plugin market (dsh-market)
+- **Recovery path**  
+  Every archive action is recoverable and shows a bottom-right undo toast.
 
-Once listed in the [awesome-dsh-plugin](https://awesome-dsh-plugin.com) registry: open **Settings → Plugin Market** → search **dsh-session-recycle-bin** → install.
+- **Native-looking dark/light UI**  
+  Uses DSH design tokens and adapts to `body[data-ds-dark-theme]` with an OS-level fallback.
 
-### Manual
+## Why this workflow?
 
-```bash
-dsh plugin --profile web add dsh-session-recycle-bin
+Deleting a Harness session is not merely removing a row. The session has durable event logs, projection cache, workspace membership, and potential in-progress work. `dsh-session-delete` treats deletion as a two-stage operation:
+
+```text
+active session -> archive (recoverable) -> restore / permanent delete
 ```
 
-Then restart the web app (stop the `dsh web` process and run `dsh web` again).
+This keeps the fast path simple while making irreversible deletion deliberate.
 
-### Local development install
+## Install
 
-```bash
-dsh plugin --profile web add link:/absolute/path/to/harness-session-delete
+Install the latest release tarball:
+
+```sh
+dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.5.2/dsh-session-delete-0.5.2.tgz
 ```
 
-### Uninstall
+Or use a pinned Git tag:
 
-```bash
-dsh plugin --profile web remove dsh-session-recycle-bin
+```sh
+dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.5.2
 ```
 
----
+Restart `dsh web` after installation.
 
-## 🚀 Usage
+Update or remove:
 
-1. **Sidebar delete** — hover a session in the left sidebar, click the trash icon: the session moves into the recycle bin and the row disappears immediately.
-2. **Settings recycle bin** — open **Settings ⚙️ → 🗑 会话回收站**:
-   - Checkbox multi-select → **Restore** (batch unarchive) or **Permanent delete** (batch purge).
-   - Each entry shows the session name, ID and working path (hover for full details).
-3. **Permanent delete** physically removes the log and projection cache; live sessions are protected.
-4. **Undo** — restoring shows an undo toast that re-archives the session.
-
----
-
-## 🛠 Development
-
-```bash
-pnpm test          # run the test suite (host logic + HTTP routes)
+```sh
+dsh plugin --profile web update dsh-session-delete
+dsh plugin --profile web remove dsh-session-delete
 ```
 
-Repo layout:
+## Usage
 
+### Delete a session
+
+1. Hover a session row in the sidebar.
+2. Open the session action menu.
+3. Select **删除**.
+4. The session moves into the recycle bin and an undo toast appears.
+
+### Restore or permanently delete
+
+1. Open **Settings → 会话回收站**.
+2. Select one or more archived sessions.
+3. Choose **还原** or **彻底删除**.
+4. Live sessions are protected automatically.
+
+## Architecture
+
+The bundle has a host half and a browser half:
+
+```text
+index.js                    Host entry: lifecycle, workspace/archive integration
+client.js                   Browser half: sidebar action, recycle-bin UI, toasts
+client.css                  DSH-native design tokens and components
+cordis.patch.yml            Web Profile bundle patch
+packages/session-trash-host Host implementation and HTTP routes
 ```
-harness-session-delete/
-├── package.json            # single bundle manifest (dsh.bundle.patch + dsh.client)
-├── cordis.patch.yml        # bundle patch: one insert mounting the host row
-├── index.js                # node half: host entry (inject + apply)
-├── client.js               # browser half: sidebar icons + settings recycle bin
-├── client.css              # plugin stylesheet: design tokens + light/dark adaptive components
-└── packages/
-    └── session-trash-host/ # host implementation (persistence/workspace/cache patches, HTTP routes)
+
+The browser talks to the host through the plugin-owned `/api/session-trash/*` routes. Non-GET requests carry the `x-dsh-plugin` header for CSRF protection. Host operations are idempotent, work per-session, and collect failures for batch operations.
+
+## Development
+
+```sh
+pnpm test
 ```
 
----
+The test suite covers host logic, archive/purge behavior, and HTTP route contracts.
 
-## 🔌 How it works
+## License
 
-- A **single npm bundle** covers both halves, same as other published plugins: the host row mounts via `cordis.patch.yml`; the browser half joins automatically through `dsh.client` + `exports["./client"]`.
-- The browser talks to the host over the plugin's own `/api/session-trash/*` HTTP routes (registered on the webserver; non-GET requests carry an `x-dsh-plugin` CSRF header).
-
----
-
-## 📄 License
-
-[MIT](LICENSE)
+MIT
