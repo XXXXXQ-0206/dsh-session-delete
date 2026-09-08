@@ -1,5 +1,11 @@
 # dsh-session-delete
 
+<p align="center">
+  <a href="README.md"><kbd>English</kbd></a>
+  &nbsp;|&nbsp;
+  <a href="README.zh.md"><kbd>中文</kbd></a>
+</p>
+
 **DeepSeek Harness 会话回收站与彻底删除插件。**
 
 `dsh-session-delete` 为 DeepSeek Harness 增加安全、可恢复的会话删除流程。你可以在侧边栏会话操作菜单中移入回收站，在 Settings 中管理已归档会话，一键恢复，或批量彻底删除。活跃 Agent 与正在使用的会话默认受到保护。
