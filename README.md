@@ -1,5 +1,11 @@
 # dsh-session-delete
 
+<p align="center">
+  <a href="README.zh.md"><kbd>中文</kbd></a>
+  &nbsp;|&nbsp;
+  <a href="README.md"><kbd>English</kbd></a>
+</p>
+
 **Session recycle bin and permanent delete for DeepSeek Harness.**
 
 `dsh-session-delete` adds a safe, recoverable deletion workflow to DeepSeek Harness. Move a session into the recycle bin from its sidebar action menu, manage archived sessions in Settings, restore them with one click, or permanently remove them in batches. Active agents and live sessions are protected by default.
