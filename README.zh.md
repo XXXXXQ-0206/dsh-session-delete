@@ -1,92 +1,103 @@
 # dsh-session-delete
 
-**DSH 会话回收站与彻底删除插件（DeepSeek Harness）。**
+**DeepSeek Harness 会话回收站与彻底删除插件。**
 
-侧边栏一键移入回收站，设置页多选还原/彻底删除，活跃会话安全拦截。
+`dsh-session-delete` 为 DeepSeek Harness 增加安全、可恢复的会话删除流程。你可以在侧边栏会话操作菜单中移入回收站，在 Settings 中管理已归档会话，一键恢复，或批量彻底删除。活跃 Agent 与正在使用的会话默认受到保护。
 
-[English](README.md) | [中文](README.zh.md)
+## 功能亮点
 
----
+- **侧边栏删除项**  
+  「删除」直接加入原生会话操作菜单，与「重命名 / 分叉对话 / 归档对话」并列。
 
-## ✨ 功能特性
+- **会话头部删除按钮**  
+  当前会话也可以从对话页顶部移入回收站。
 
-- **侧边栏会话行删除图标** — 悬停会话行出现小垃圾桶图标，点击即移入回收站（免确认，随时可找回）。
-- **会话头部删除按钮** — 从会话页顶部删除当前会话。
-- **回收站管理器**（设置 → 🗑 会话回收站）— 已归档会话多选：批量还原、批量彻底删除；条目显示 ID 与路径。
-- **真正的彻底删除** — 物理清除磁盘日志与投影缓存；无日志的幽灵会话被彻底清理，不会残留。
-- **活跃会话保护** — 正在运行（有活跃 agent）的会话拒绝删除。
-- **批量容错** — 批量操作逐条执行，收集并汇报失败项。
-- **浅色/深色自适应界面** — 所有颜色以 CSS 变量（设计令牌）收敛在 `client.css`，组件优先跟随 DSH 应用外观（`data-ds-dark-theme`），并以 `prefers-color-scheme` 作为系统级兜底，无硬编码色板。
+- **回收站管理器**  
+  Settings → **会话回收站** 提供搜索、工作区分组、多选、批量还原与批量彻底删除。
 
----
+- **真正的彻底删除**  
+  同时清除持久化会话日志、投影缓存，以及只有记录没有日志的幽灵会话。
 
-## 📦 安装
+- **活跃会话保护**  
+  拒绝删除正在运行或仍被使用的会话。
 
-### 从插件市场一键安装（dsh-market）
+- **可恢复路径**  
+  每次归档操作都可撤销，并在右下角显示撤销 Toast。
 
-收录进 [awesome-dsh-plugin](https://awesome-dsh-plugin.com) 注册表后：打开 **设置 → 插件市场** → 搜索 **dsh-session-recycle-bin** → 安装。
+- **原生风格深色/浅色界面**  
+  使用 DSH 设计令牌，优先跟随 `body[data-ds-dark-theme]`，并提供 OS 级兜底。
 
-### 手动安装
+## 为什么采用这套流程？
 
-```bash
-dsh plugin --profile web add dsh-session-recycle-bin
+删除 Harness 会话不只是移除一行记录。会话包含持久化事件日志、投影缓存、工作区归属，甚至可能还有进行中的工作。`dsh-session-delete` 把删除设计成两阶段操作：
+
+```text
+活跃会话 -> 归档（可恢复） -> 恢复 / 彻底删除
 ```
 
-安装完成后重启 Web 服务（停止 `dsh web` 进程后重新启动）。
+这样既保留日常操作的速度，又让不可逆删除变得更慎重。
 
-### 本地开发安装
+## 安装
 
-```bash
-dsh plugin --profile web add link:/绝对路径/harness-session-delete
+安装最新 Release：
+
+```sh
+dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.5.2/dsh-session-delete-0.5.2.tgz
 ```
 
-### 卸载
+也可以安装固定 Git 标签：
 
-```bash
-dsh plugin --profile web remove dsh-session-recycle-bin
+```sh
+dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.5.2
 ```
 
----
+安装后重启 `dsh web`。
 
-## 🚀 使用说明
+更新或卸载：
 
-1. **侧边栏删除** — 悬停左侧会话列表中的会话，点击垃圾桶图标：会话移入回收站，行即时消失。
-2. **设置页回收站** — 打开「设置 ⚙️ → 🗑 会话回收站」：
-   - 复选框多选 → **还原**（批量解除归档）或 **彻底删除**（批量清除）。
-   - 每个条目显示会话名、ID 与工作路径（悬浮查看完整信息）。
-3. **彻底删除** 物理清除日志与投影缓存；活跃会话受保护。
-4. **撤销** — 还原操作带撤销提示，可重新归档。
-
----
-
-## 🛠 开发
-
-```bash
-pnpm test          # 运行测试套件（host 逻辑 + HTTP 路由层）
+```sh
+dsh plugin --profile web update dsh-session-delete
+dsh plugin --profile web remove dsh-session-delete
 ```
 
-仓库结构：
+## 使用方法
 
+### 删除会话
+
+1. 在侧边栏悬停目标会话行。
+2. 打开会话操作菜单。
+3. 点击 **删除**。
+4. 会话移入回收站，并出现撤销 Toast。
+
+### 还原或彻底删除
+
+1. 打开 **Settings → 会话回收站**。
+2. 选择一个或多个已归档会话。
+3. 选择 **还原** 或 **彻底删除**。
+4. 活跃会话会自动受到保护。
+
+## 架构
+
+这个 bundle 同时包含 Host 与 Browser 两端：
+
+```text
+index.js                    Host 入口：生命周期、工作区、归档与持久化
+client.js                   Browser 半边：侧边栏操作、回收站 UI、Toast
+client.css                  基于 DSH 设计令牌的组件样式
+cordis.patch.yml            Web Profile bundle patch
+packages/session-trash-host Host 实现与 HTTP 路由
 ```
-harness-session-delete/
-├── package.json            # 单包 bundle 声明（dsh.bundle.patch + dsh.client）
-├── cordis.patch.yml        # bundle patch：一行 insert 挂载 host 行
-├── index.js                # node 半边：host 入口（inject + apply）
-├── client.js               # browser 半边：侧边栏图标 + 设置页回收站
-├── client.css              # 插件样式表：设计令牌 + 浅色/深色自适应组件
-└── packages/
-    └── session-trash-host/ # host 实现（persistence/workspace/cache 补丁、HTTP 路由）
+
+Browser 通过插件自己的 `/api/session-trash/*` 路由与 Host 通信；非 GET 请求携带 `x-dsh-plugin` 头防止 CSRF。Host 操作按会话逐一执行，批量操作会收集并报告失败项。
+
+## 开发
+
+```sh
+pnpm test
 ```
 
----
+测试覆盖 Host 逻辑、归档/彻底删除行为与 HTTP 路由契约。
 
-## 🔌 工作原理
+## License
 
-- **单包 bundle** 同时覆盖两端，与其它已发布插件一致：host 半边由 `cordis.patch.yml` 挂载；浏览器半边经 `dsh.client` + `exports["./client"]` 自动进入模块图。
-- 浏览器通过插件自身的 `/api/session-trash/*` HTTP 路由与宿主通信（webserver 注册；非 GET 请求携带 `x-dsh-plugin` CSRF 头）。
-
----
-
-## 📄 许可证
-
-[MIT](LICENSE)
+MIT
