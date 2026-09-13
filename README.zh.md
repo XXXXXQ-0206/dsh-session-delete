@@ -48,13 +48,13 @@
 安装最新 Release：
 
 ```sh
-dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.5.3/dsh-session-delete-0.5.3.tgz
+dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.5.4/dsh-session-delete-0.5.4.tgz
 ```
 
 也可以安装固定 Git 标签：
 
 ```sh
-dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.5.3
+dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.5.4
 ```
 
 安装后重启 `dsh web`。
