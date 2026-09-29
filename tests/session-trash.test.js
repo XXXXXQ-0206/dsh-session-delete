@@ -23,7 +23,10 @@ describe('Session Trash Host Plugin Test Suite', () => {
 
     mockPersistence = {
       locate: (header) => ({ path: join(tempDir, header.id, 'session.jsonl') }),
-      findLog: async (id) => join(tempDir, id, 'session.jsonl'),
+      findLog: async (id) => ({
+        sourcePath: join(tempDir, id, 'session.jsonl'),
+        currentPath: join(tempDir, id, 'session-v4.jsonl'),
+      }),
       list: async () => [
         { id: 'sess-1', title: 'Session 1', cwd: '/work/proj1' },
         { id: 'sess-2', title: 'Session 2', cwd: '/work/proj2' },

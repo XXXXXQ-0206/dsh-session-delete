@@ -7,6 +7,13 @@
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.1] - 2026-09-29
+
+### 修复
+
+- 彻底删除现在能识别 DSH 0.2 `findLog()` 返回的 generation 描述对象（`{ sourcePath, currentPath }`），不再把它误当字符串路径。
+- 回收站列表、预览和删除统一使用路径归一化，恢复 DSH 0.2 下的完整会话管理操作。
+
 ## [0.6.0] - 2026-09-29
 
 ### 变更

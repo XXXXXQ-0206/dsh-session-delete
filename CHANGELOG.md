@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.1] - 2026-09-29
+
+### Fixed
+
+- Permanent deletion now understands the DSH 0.2 `findLog()` generation descriptor (`{ sourcePath, currentPath }`) instead of treating it as a string path.
+- Recycle-bin listing, preview, and deletion share one path normalizer, restoring all session management actions under DSH 0.2.
+
 ## [0.6.0] - 2026-09-29
 
 ### Changed

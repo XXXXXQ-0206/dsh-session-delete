@@ -34,6 +34,22 @@ try {
   };
 }
 
+/**
+ * DSH 0.1 returned a log path string from findLog/locate. DSH 0.2 returns a
+ * generation descriptor ({ sourcePath, currentPath }) instead. Normalize both
+ * shapes before any path operation.
+ * @param {string | { sourcePath?: string, currentPath?: string, path?: string } | undefined} value
+ * @returns {string | undefined}
+ */
+function resolveLogPath(value) {
+  if (typeof value === 'string') return value;
+  if (!value || typeof value !== 'object') return undefined;
+  for (const key of ['sourcePath', 'currentPath', 'path']) {
+    if (typeof value[key] === 'string' && value[key] !== '') return value[key];
+  }
+  return undefined;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Helper: Broadcast session state change                             */
 /* ------------------------------------------------------------------ */
@@ -91,7 +107,9 @@ function patchSessionPersistenceDelete(persistence) {
     }
 
     try {
-      const logPath = typeof this.findLog === 'function' ? await this.findLog(id) : undefined;
+      const logPath = resolveLogPath(
+        typeof this.findLog === 'function' ? await this.findLog(id) : undefined,
+      );
       if (logPath) {
         const sessionDir = dirname(logPath);
         await rm(sessionDir, { recursive: true, force: true });
@@ -255,9 +273,9 @@ function patchWorkspaceRegistry(registry, ctx) {
     // removed), `logFound` stays false.
     let logFound = false;
     try {
-      const logPath = typeof persistence?.findLog === 'function'
+      const logPath = resolveLogPath(typeof persistence?.findLog === 'function'
         ? await persistence.findLog(sessionId)
-        : undefined;
+        : undefined);
       if (logPath) {
         logFound = true;
         const sessionDir = dirname(logPath);
@@ -431,7 +449,9 @@ function patchWorkspaceRegistry(registry, ctx) {
         let derivedTitle = '';
 
         try {
-          const logPath = typeof persistence?.findLog === 'function' ? await persistence.findLog(sessionId) : undefined;
+          const logPath = resolveLogPath(
+            typeof persistence?.findLog === 'function' ? await persistence.findLog(sessionId) : undefined,
+          );
           if (logPath) {
             const fileStat = await stat(logPath).catch(() => null);
             if (fileStat) {
@@ -759,7 +779,9 @@ function registerRoutes(ctx) {
         const sessionId = url.searchParams.get('sessionId');
         if (!sessionId) throw httpError(400, 'BAD_REQUEST', 'sessionId is required');
 
-        const logPath = typeof persistence?.findLog === 'function' ? await persistence.findLog(sessionId) : undefined;
+        const logPath = resolveLogPath(
+          typeof persistence?.findLog === 'function' ? await persistence.findLog(sessionId) : undefined,
+        );
         const messages = [];
 
         /** 提取 ContentBlock[] 中的文本块并连接（text-only blocks）。 */
@@ -891,7 +913,7 @@ function registerRoutes(ctx) {
           if (!resolvedLogPath && typeof persistence?.locate === 'function') {
             try {
               const loc = persistence.locate({ id: sessionId });
-              resolvedLogPath = loc?.path || loc;
+              resolvedLogPath = resolveLogPath(loc);
             } catch {}
           }
 

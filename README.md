@@ -45,18 +45,18 @@ This keeps the fast path simple while making irreversible deletion deliberate.
 
 ## Install
 
-Version 0.6.0 targets DeepSeek Harness `0.2.x` (`0.2.0-rc.1` or newer).
+Version 0.6.1 targets DeepSeek Harness `0.2.x` (`0.2.0-rc.1` or newer).
 
 Install the latest release tarball:
 
 ```sh
-dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.6.0/dsh-session-delete.tgz
+dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.6.1/dsh-session-delete.tgz
 ```
 
 Or use a pinned Git tag:
 
 ```sh
-dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.6.0
+dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.6.1
 ```
 
 Restart `dsh web` after installation.
