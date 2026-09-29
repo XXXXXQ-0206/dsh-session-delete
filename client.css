@@ -1071,6 +1071,15 @@ body:not([data-ds-dark-theme]) .dsh-trash-container { color-scheme: light; }
 /*  Sidebar per-row delete button (moved out of client.js)             */
 /* ------------------------------------------------------------------ */
 
+/* Cloned native menu item: keep native dimensions/hover and only tint the danger action. */
+.dsh-trash-native-menu-item {
+  color: var(--dsw-alias-label-error, var(--dstrb-danger));
+}
+
+.dsh-trash-native-menu-item svg {
+  color: currentColor;
+}
+
 .dsh-trash-row-btn {
   background: none;
   border: none;

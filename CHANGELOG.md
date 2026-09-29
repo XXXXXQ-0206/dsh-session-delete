@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.2] - 2026-09-29
+
+### Fixed
+
+- Build the sidebar session-delete menu item by cloning a native Rename/Fork/Archive item instead of hard-coding Web-only hashed classes.
+- The delete action now inherits each surface's native menu dimensions, icon spacing, hover state, radius, and active state; only the danger color is applied by the plugin.
+
 ## [0.6.1] - 2026-09-29
 
 ### Fixed

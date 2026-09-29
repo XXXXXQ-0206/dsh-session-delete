@@ -1242,20 +1242,44 @@ window.__ModuleLoader__.load({
         const txt = menu.textContent || '';
         if (!/(重命名|重命名聊天|分叉|归档|Rename|Fork|Archive)/.test(txt)) continue;
 
-        const item = document.createElement('button');
-        item.type = 'button';
+        const reference = [...menu.querySelectorAll('[role="menuitem"]')].find((candidate) => (
+          !candidate.hasAttribute('data-dsh-session-recycle-bin-menu-item')
+          && /(重命名|重命名聊天|分叉|归档|Rename|Fork|Archive)/.test(candidate.textContent || '')
+        ));
+        if (!reference) continue;
+        // Clone a native item so Desktop and Web both inherit their own hashed
+        // menu classes, icon metrics, hover background, and active states.
+        const item = reference.cloneNode(true);
+        item.removeAttribute('disabled');
+        item.removeAttribute('aria-disabled');
+        item.removeAttribute('aria-keyshortcuts');
         item.setAttribute('role', 'menuitem');
-        item.className = '_item_1aoad_92';
+        item.setAttribute('aria-label', '删除');
+        item.classList.add('dsh-trash-native-menu-item');
+        for (const key of item.querySelectorAll('kbd')) {
+          const shortcut = key.closest('span[aria-hidden="true"]');
+          (shortcut || key).remove();
+        }
         item.dataset.dshSessionRecycleBinMenuItem = 'true';
         item.dataset.dshDeleteSessionId = sess.sessionId;
-        item.innerHTML =
-          '<span class="_itemIcon_1aoad_144">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ' +
-          'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-          '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
-          '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>' +
-          '<line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></span>' +
-          '<span>删除</span>';
+        const label = [...item.querySelectorAll('*')].find((element) => (
+          element.children.length === 0
+          && /(重命名|重命名聊天|分叉|归档|Rename|Fork|Archive)/.test(element.textContent || '')
+        ));
+        if (label) label.textContent = '删除';
+        const icon = item.querySelector('svg');
+        if (icon) {
+          icon.setAttribute('viewBox', '0 0 24 24');
+          icon.setAttribute('fill', 'none');
+          icon.setAttribute('stroke', 'currentColor');
+          icon.setAttribute('stroke-width', '2');
+          icon.setAttribute('stroke-linecap', 'round');
+          icon.setAttribute('stroke-linejoin', 'round');
+          icon.innerHTML =
+            '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
+            '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>' +
+            '<line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>';
+        }
 
         item.addEventListener('click', async (e) => {
           e.preventDefault();
