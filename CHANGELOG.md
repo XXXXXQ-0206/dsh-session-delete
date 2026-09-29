@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.3] - 2026-09-29
+
+### Changed
+
+- Desktop session rows and menus now hide the stock archive actions; deletion through the recycle bin remains available.
+- The plugin delete menu item keeps the native menu color instead of applying a danger tint.
+
 ## [0.6.2] - 2026-09-29
 
 ### Fixed

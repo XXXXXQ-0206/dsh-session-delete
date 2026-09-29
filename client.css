@@ -1071,13 +1071,18 @@ body:not([data-ds-dark-theme]) .dsh-trash-container { color-scheme: light; }
 /*  Sidebar per-row delete button (moved out of client.js)             */
 /* ------------------------------------------------------------------ */
 
-/* Cloned native menu item: keep native dimensions/hover and only tint the danger action. */
+/* Cloned native menu item: keep native dimensions, color, hover, and icon metrics. */
 .dsh-trash-native-menu-item {
-  color: var(--dsw-alias-label-error, var(--dstrb-danger));
+  color: inherit;
 }
 
 .dsh-trash-native-menu-item svg {
   color: currentColor;
+}
+
+/* Desktop uses the recycle bin; hide stock archival controls there. */
+.dsh-trash-hide-archive {
+  display: none !important;
 }
 
 .dsh-trash-row-btn {

@@ -15,6 +15,25 @@ window.__ModuleLoader__.load({
 
     const API_PREFIX = '/api/session-trash';
     let pendingMenuSession = null;
+    const IS_DESKTOP = typeof window !== 'undefined' && window.location.protocol === 'dsh-app:';
+
+    function isArchiveAction(element) {
+      if (!element || element.closest('.dsh-trash-container, .dsh-trash-overlay')) return false;
+      const label = [
+        element.getAttribute('aria-label'),
+        element.getAttribute('title'),
+        element.textContent,
+      ].filter(Boolean).join(' ');
+      return /(归档会话|归档聊天|取消归档|archive)/i.test(label);
+    }
+
+    /** Desktop uses the recycle bin as the archive surface; hide stock archive actions. */
+    function hideDesktopArchiveActions() {
+      if (!IS_DESKTOP || typeof document === 'undefined') return;
+      for (const element of document.querySelectorAll('button, [role="menuitem"]')) {
+        if (isArchiveAction(element)) element.classList.add('dsh-trash-hide-archive');
+      }
+    }
 
     /** Resolve one session title with the browser store, falling back to server data. */
     function currentTitle(ctx, sessionId, fallback) {
@@ -1247,6 +1266,11 @@ window.__ModuleLoader__.load({
           && /(重命名|重命名聊天|分叉|归档|Rename|Fork|Archive)/.test(candidate.textContent || '')
         ));
         if (!reference) continue;
+        if (IS_DESKTOP) {
+          for (const candidate of menu.querySelectorAll('[role="menuitem"]')) {
+            if (isArchiveAction(candidate)) candidate.classList.add('dsh-trash-hide-archive');
+          }
+        }
         // Clone a native item so Desktop and Web both inherit their own hashed
         // menu classes, icon metrics, hover background, and active states.
         const item = reference.cloneNode(true);
@@ -1351,6 +1375,7 @@ window.__ModuleLoader__.load({
           raf = 0;
           try {
             injectRowDelete(ctx);
+            hideDesktopArchiveActions();
             injectSettingsMenuIcon();
             // 会话下拉菜单挂载后、浏览器绘制前同步注入「删除」项，避免先渲染三项再追加的闪烁。
             if (pendingMenuSession && injectDeleteIntoOpenSessionMenu(ctx, pendingMenuSession)) {
