@@ -1080,8 +1080,8 @@ body:not([data-ds-dark-theme]) .dsh-trash-container { color-scheme: light; }
   color: currentColor;
 }
 
-/* Desktop uses the recycle bin; hide stock archival controls there. */
-.dsh-trash-hide-archive {
+/* Desktop uses the recycle-bin flow; hide stock archive and pin controls. */
+.dsh-trash-hide-native-action {
   display: none !important;
 }
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.4] - 2026-09-29
+
+### Changed
+
+- Hide the stock Pin session action and Pin menu item on Desktop as well as the archive controls.
+
 ## [0.6.3] - 2026-09-29
 
 ### Changed

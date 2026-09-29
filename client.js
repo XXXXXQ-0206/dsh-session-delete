@@ -17,21 +17,23 @@ window.__ModuleLoader__.load({
     let pendingMenuSession = null;
     const IS_DESKTOP = typeof window !== 'undefined' && window.location.protocol === 'dsh-app:';
 
-    function isArchiveAction(element) {
-      if (!element || element.closest('.dsh-trash-container, .dsh-trash-overlay')) return false;
+    function isHiddenDesktopAction(element) {
+      if (!element
+        || element.classList.contains('dshwv-rolepin')
+        || element.closest('.dsh-trash-container, .dsh-trash-overlay')) return false;
       const label = [
         element.getAttribute('aria-label'),
         element.getAttribute('title'),
         element.textContent,
       ].filter(Boolean).join(' ');
-      return /(归档会话|归档聊天|取消归档|archive)/i.test(label);
+      return /(归档会话|归档聊天|取消归档|置顶会话|取消置顶|archive session|unarchive session|pin session|unpin session)/i.test(label);
     }
 
-    /** Desktop uses the recycle bin as the archive surface; hide stock archive actions. */
-    function hideDesktopArchiveActions() {
+    /** Desktop uses the recycle-bin flow; hide stock archive and pin actions. */
+    function hideDesktopNativeActions() {
       if (!IS_DESKTOP || typeof document === 'undefined') return;
       for (const element of document.querySelectorAll('button, [role="menuitem"]')) {
-        if (isArchiveAction(element)) element.classList.add('dsh-trash-hide-archive');
+        if (isHiddenDesktopAction(element)) element.classList.add('dsh-trash-hide-native-action');
       }
     }
 
@@ -1268,7 +1270,7 @@ window.__ModuleLoader__.load({
         if (!reference) continue;
         if (IS_DESKTOP) {
           for (const candidate of menu.querySelectorAll('[role="menuitem"]')) {
-            if (isArchiveAction(candidate)) candidate.classList.add('dsh-trash-hide-archive');
+            if (isHiddenDesktopAction(candidate)) candidate.classList.add('dsh-trash-hide-native-action');
           }
         }
         // Clone a native item so Desktop and Web both inherit their own hashed
@@ -1375,7 +1377,7 @@ window.__ModuleLoader__.load({
           raf = 0;
           try {
             injectRowDelete(ctx);
-            hideDesktopArchiveActions();
+            hideDesktopNativeActions();
             injectSettingsMenuIcon();
             // 会话下拉菜单挂载后、浏览器绘制前同步注入「删除」项，避免先渲染三项再追加的闪烁。
             if (pendingMenuSession && injectDeleteIntoOpenSessionMenu(ctx, pendingMenuSession)) {
