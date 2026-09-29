@@ -7,6 +7,14 @@
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.0] - 2026-09-29
+
+### 变更
+
+- 面向 DeepSeek Harness `0.2.x`，并显式声明支持的运行时范围。
+- Node.js 最低版本提升到 `22.19`，与 DSH 0.2 运行时保持一致。
+- 安装说明改用稳定的 GitHub Release tarball 资源名。
+
 ## [0.3.3] - 2026-09-02
 
 ### 修复

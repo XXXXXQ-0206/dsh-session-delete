@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-delete",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "description": "Session recycle bin and permanent delete for DeepSeek Harness.",
   "type": "module",
   "main": "index.js",
@@ -46,11 +46,19 @@
       "inject": []
     }
   },
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.1 <0.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh": {
+      "optional": true
+    }
+  },
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
     "prepublishOnly": "npm test"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.19"
   }
 }

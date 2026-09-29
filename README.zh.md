@@ -45,16 +45,18 @@
 
 ## 安装
 
+0.6.0 面向 DeepSeek Harness `0.2.x`（`0.2.0-rc.1` 及以上）。
+
 安装最新 Release：
 
 ```sh
-dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.5.4/dsh-session-delete-0.5.4.tgz
+dsh plugin --profile web add https://github.com/XXXXXQ-0206/dsh-session-delete/releases/download/v0.6.0/dsh-session-delete.tgz
 ```
 
 也可以安装固定 Git 标签：
 
 ```sh
-dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.5.4
+dsh plugin --profile web add github:XXXXXQ-0206/dsh-session-delete#v0.6.0
 ```
 
 安装后重启 `dsh web`。

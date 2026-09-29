@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.0] - 2026-09-29
+
+### Changed
+
+- Target DeepSeek Harness `0.2.x` and declare the supported runtime range explicitly.
+- Raise the Node.js floor to `22.19`, matching the DSH 0.2 runtime.
+- Use the stable GitHub Release tarball asset name in installation instructions.
+
 ## [0.3.3] - 2026-09-02
 
 ### Fixed
