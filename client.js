@@ -1319,8 +1319,9 @@ window.__ModuleLoader__.load({
           } catch (err) {
             showToastLayer(`移入回收站失败: ${err.message}`);
           }
-          // 关闭菜单
-          try { menu.remove(); } catch {}
+          // 关闭菜单：菜单节点归应用所有，交给 contextMenus 收起。摘掉 React 持有的
+          // 节点会让之后的“…”一直渲染在文档之外（刷新前都点不开）。
+          ctx?.get?.('contextMenus')?.close?.()
         });
 
         menu.appendChild(item);

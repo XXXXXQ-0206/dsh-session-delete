@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [English](CHANGELOG.md) | [中文](CHANGELOG.zh.md)
 
+## [0.6.5] - 2026-11-19
+
+### Fixed
+
+- Closing the session menu after a delete no longer removes the `[role="menu"]` node React owns. Removing it detached the element React keeps rendering into, so every later “…” click silently opened an off-document menu until the page reloaded; the menu is now dismissed through the app's own `contextMenus` service.
+
 ## [0.6.4] - 2026-09-29
 
 ### Changed
